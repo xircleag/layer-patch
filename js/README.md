@@ -12,6 +12,7 @@ The goal of this utility is to take as input
 
 ## Examples
 
+```
 var propertyNameMap = {
     Message: {
         sent_at: "sent_time"
@@ -70,7 +71,7 @@ layer.js.LayerPatchParser({
     abortChangeCallbacks: abortChangeCallbacks,
     getObjectCallback: getObjectCallback
 });
-
+```
 ## Evolution
 
 It is the goal of this library to only handle Layer-Patch processing in a way that is specific to the standard and independent of how or where that standard is implemented.  As such, it does not include:
