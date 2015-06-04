@@ -7,7 +7,8 @@ The goal of this utility is to take as input
 3. An optional camelCase parameter to indicate whether properties such as sent_at should be transformed to sentAt
 4. An optional Hash mapping property names from the server property name "sent_at" to any property name in your client side schema "sent_time"
 5. An optional Hash mapping changes to properties to callbacks to handle side effects of any changes
-6. An optional callback for finding an object by ID (required for `{operation: "set", property: "fred", id: "layer:///messages/m1"}`
+6. An optional Hash mapping of callbacks to prevent the requested changes as illegal changes.
+7. An optional callback for finding an object by ID (required for `{operation: "set", property: "fred", id: "layer:///messages/m1"}`
 
 ## Examples
 
