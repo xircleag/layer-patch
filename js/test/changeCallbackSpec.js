@@ -6,7 +6,7 @@ describe("Change Callback Tests", function() {
         parser = new layer.js.LayerPatchParser({
             changeCallbacks: {
                 "typea": {
-                    "a": function(newValue, oldValue, paths) {
+                    "a": function(updateObject, newValue, oldValue, paths) {
                         called = true;
                         expect(oldValue).toEqual(5);
                         expect(newValue).toEqual(10);
@@ -33,7 +33,7 @@ describe("Change Callback Tests", function() {
         parser = new layer.js.LayerPatchParser({
             changeCallbacks: {
                 "typea": {
-                    "a": function(newValue, oldValue, paths) {
+                    "a": function(updateObject, newValue, oldValue, paths) {
                         called = true;
                         expect(oldValue).toEqual({hey: "ho"});
                         expect(newValue).toEqual({
@@ -62,7 +62,7 @@ describe("Change Callback Tests", function() {
         parser = new layer.js.LayerPatchParser({
             changeCallbacks: {
                 "typea": {
-                    "all": function(newValue, oldValue, paths) {
+                    "all": function(updateObject, newValue, oldValue, paths) {
                         called = true;
                         expect(oldValue).toEqual({hey: "ho"});
                         expect(newValue).toEqual({
@@ -93,7 +93,7 @@ describe("Change Callback Tests", function() {
         parser = new layer.js.LayerPatchParser({
             changeCallbacks: {
                 "typea": {
-                    "a": function(newValue, oldValue, paths) {
+                    "a": function(updateObject, newValue, oldValue, paths) {
                         called = true;
                         expect(count).toEqual(0);
                         count++;
@@ -120,7 +120,7 @@ describe("Change Callback Tests", function() {
         parser = new layer.js.LayerPatchParser({
             changeCallbacks: {
                 "typea": {
-                    "a": function(newValue, oldValue, paths) {
+                    "a": function(updateObject, newValue, oldValue, paths) {
                         called = true;
                         expect(count).toEqual(0);
                         count++;

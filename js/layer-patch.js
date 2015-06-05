@@ -49,10 +49,10 @@ function reportChanges(changes, updateObject, objectType) {
     if (this.changeCallbacks && objectType && this.changeCallbacks[objectType]) {
         Object.keys(changes).forEach(function(key) {
             if (this.changeCallbacks[objectType][key]) {
-                this.changeCallbacks[objectType][key](updateObject[key], changes[key].before, changes[key].paths);
+                this.changeCallbacks[objectType][key](udpateObject, updateObject[key], changes[key].before, changes[key].paths);
             }
             if (this.changeCallbacks[objectType].all) {
-                this.changeCallbacks[objectType].all(updateObject[key], changes[key].before, changes[key].paths);
+                this.changeCallbacks[objectType].all(udpateObject, updateObject[key], changes[key].before, changes[key].paths);
             }
         }, this);
     }

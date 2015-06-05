@@ -4,15 +4,22 @@ The goal of this utility is to take as input
 
 1. Layer Patch Operations Arrays
 2. An object to modify
-3. An optional camelCase parameter to indicate whether properties such as sent_at should be transformed to sentAt
-4. An optional Hash mapping property names from the server property name "sent_at" to any property name in your client side schema "sent_time"
-5. An optional Hash mapping changes to properties to callbacks to handle side effects of any changes
-6. An optional Hash mapping of callbacks to prevent the requested changes as illegal changes.
-7. An optional callback for finding an object by ID (required for `{operation: "set", property: "fred", id: "layer:///messages/m1"}`
+
+And perform those modifications.  However, the following additional inputs make this utility a bit more practical:
+
+1. A type for the object (used to do lookups in the other config structures)
+4. An optional camelCase parameter to indicate whether properties such as sent_at should be transformed to sentAt
+5. An optional Hash mapping property names from the server property name "sent_at" to any property name in your client side schema "sent_time"
+6. An optional Hash mapping changes to properties to callbacks to handle triggering events based on the changes.
+7. An optional Hash mapping of callbacks to validate the change before allowing it to procede.
+8. An optional callback for finding an object by ID (required for `{operation: "set", property: "fred", id: "layer:///messages/m1"}`
 
 ## Examples
 
 ```
+/* The Property Name Map: Allows us to map a property name received
+ * in the operation to a different property name in our local object.
+ */
 var propertyNameMap = {
     Message: {
         sent_at: "sent_time"
@@ -23,35 +30,39 @@ var propertyNameMap = {
     }
 };
 
+/* The Change Event Handler: Allows side effects and events to be fired
+ * based on a change.
 var changeCallbacks = {
     Conversation: {
-        metadata: function(oldValue, newValue, op) {
-            alert("Metadata has changed; " + op.value + " has been " + op.operation + "ed");
+        metadata: function(updateObject, oldValue, newValue, paths) {
+            alert("Metadata has changed; The following paths were changed: " + paths.join(", "));
         }
     },
     Message: {
-        recipient_status: function(oldValue, newValue, op) {
+        recipient_status: function(updateObject, oldValue, newValue, paths) {
 
         },
-        all: function(propertyName, oldValue, newValue, op) {
+        all: function(updateObject, oldValue, newValue, paths) {
 
         }
     }
 }
 
 // Return true to abort; false, null, undefined all allow operation to procede
-var abortChangeCallbacks = {
+var abortCallbacks = {
     Conversation: {
-        metadata: function(oldValue, newValue, op) {
+        metadata: function(property, operation, value) {
             // Nobody gets to set the title to "fred"
-            if (newValue.title == "fred") return true;
+            if (property == "metadata.title" &&
+                operation == "set" &&
+                value == "fred") return true;
         },
-        all: function(propertyName, oldValue, newValue, op) {
+        all: function(property, operation, value) {
             // Reject changes to any field whose name suggests it
             // is for date/time but whose value doesn't parse to
             // date/time.
-            if (propertyName.match(/_at$/)) {
-                var d = new Date(newValue);
+            if (operation == "set" && property.match(/_at$/)) {
+                var d = new Date(value);
                 if (isNaN(d.getTime())) return true;
             }
         }
@@ -62,15 +73,24 @@ var getObjectCallback = function(id) {
     return objectCache[id];
 }
 
-layer.js.LayerPatchParser({
-    operations: websocketMsg.data,
-    updateObject: mycache.fetch(websocketMsg.object.id),
+var parser = layer.js.LayerPatchParser({
     camelCase: false,
     propertyNameMap: propertyNameMap,
     changeCallbacks: changeCallbacks,
-    abortChangeCallbacks: abortChangeCallbacks,
-    getObjectCallback: getObjectCallback
+    abortCallbacks: abortCallbacks,
+    getObjectCallback: getObjectCallback,
+    doesObjectMatchIdCallback: function(id, obj) {
+        return obj.id == id;
+    }
 });
+
+parser.parse({
+    updateObject: obj,
+    objectType: "Message", // used to access propertyNameMap and callback Maps
+    operations: [op1, op2, op3, ...]
+});
+
+
 ```
 ## Evolution
 
