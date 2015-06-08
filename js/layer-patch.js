@@ -69,7 +69,7 @@ function getPropertyDef(property, options, changes) {
 
     if (this.propertyNameMap) {
         var typeDef = this.propertyNameMap[options.objectType];
-        parts[0] = (typeDef && typeDef[parts[0]]) || property;
+        parts[0] = (typeDef && typeDef[parts[0]]) || parts[0];
     }
 
     trackChanges.apply(this, [{
