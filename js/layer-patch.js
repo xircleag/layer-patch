@@ -113,7 +113,7 @@ function getValue(op, options) {
 function trackChanges(options) {
     if (!options.changes[options.baseName]) {
         var initialValue = options.updateObject[options.baseName];
-        if (options.operation.id && initialValue) {
+        if ("id" in options.operation && initialValue) {
             initialValue = initialValue.id;
         }
         var change = options.changes[options.baseName] = {paths: []};
