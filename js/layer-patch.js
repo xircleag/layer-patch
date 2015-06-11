@@ -35,7 +35,7 @@ module.exports = Parser;
 Parser.prototype.parse = function(options) {
     var changes = {};
     options.operations.forEach(function(op) {
-        var propertyDef = getPropertyDef.apply(this, [op.property, options, changes])
+        var propertyDef = getPropertyDef.apply(this, [op.property, options, changes, op])
         opHandlers[op.operation].call(this,
             propertyDef,
             getValue.apply(this, [op, options]),
@@ -58,7 +58,7 @@ function reportChanges(changes, updateObject, objectType) {
     }
 }
 
-function getPropertyDef(property, options, changes) {
+function getPropertyDef(property, options, changes, operation) {
     var obj = options.updateObject;
     var parts = property.split(/\./);
     if (this.camelCase) parts = parts.map(function(p) {
@@ -77,7 +77,8 @@ function getPropertyDef(property, options, changes) {
         fullPath: property,
         updateObject: options.updateObject,
         options: options,
-        changes: changes
+        changes: changes,
+        operation: operation
     }]);
 
     var curObj = obj;
@@ -112,6 +113,9 @@ function getValue(op, options) {
 function trackChanges(options) {
     if (!options.changes[options.baseName]) {
         var initialValue = options.updateObject[options.baseName];
+        if (options.operation.id && initialValue) {
+            initialValue = initialValue.id;
+        }
         var change = options.changes[options.baseName] = {paths: []};
         change.before = (initialValue && typeof initialValue == "object") ? JSON.parse(JSON.stringify(initialValue)) : initialValue;
     }
