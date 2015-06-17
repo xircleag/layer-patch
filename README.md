@@ -3,16 +3,21 @@
 
 ## Introduction
 
-What is Layer-Patch, and why are we using it rather than industry standard formats?
+What is Layer-Patch, and why use it rather than industry standard formats?
 
 Layer-Patch is a format for communicating changes to objects between multiple devices/services so that all devices can maintain a common object state.
 
 It is similar in many ways to the JSON-Patch standard. The JSON-Patch standard had a few key flaws:
 
-1. It has a concept of arrays, but no concept of sets
-2. Small changes in the ordering of the array, or in the sequence in which syncing is done will cause objects to get out of sync, resulting in bad behaviors.  Such issues may be easily addressed in a tight-knit set of teams and environments (our mobile client team talking to our server team), but will result in many errors for each new customer trying to use it to talk to our server (hundreds of developers using our websocket API).
-3. It uses a XPath notation (path elements seperated by "/") inconsistent with both our IOS notation, and standard JSON notation (path elements separated by ".").
+1. It has a concept of arrays, but no concept of sets.
+2. Small changes in the ordering of the array, or in the sequence in which syncing is done will cause objects to get out of sync, resulting in bad behaviors.  Such issues may be easily addressed in a tight-knit set of teams and environments, but will result in many errors when used to communicate with a wide variety of customers using a wide variety of frameworks.
+3. It uses JSON Pointer notation (path elements seperated by "/") inconsistent with a variety of standard practices based around path elements being separated by ".".
 
+> Note that this document uses examples from data models used by Layer, Inc.  The format described here however should be applicable to any domain.
+
+> The term "Base Object" refers to a core resource that can be mutated via patch operations.  Examples in this document will use Conversation and Message objects used by Layer, Inc.
+
+> Note that there may be occasional notes in the document, formatted like this.  They will be used to indicate the current state of implementation of the format, and should not be considered a part of the specification itself.
 
 ## The Format
 
@@ -26,27 +31,13 @@ It is similar in many ways to the JSON-Patch standard. The JSON-Patch standard h
         {operation: "remove",   property: "propA.propB", index: 3},
         {operation: "set",      property: "propA.propB", value: "fred"},
         {operation: "delete",   property: "propA.propB"},
-        {operation: "set",      property: "propA.propB",id: "layer:///messages/uuid"}
+        {operation: "set",      property: "propA.propB", id: "layer:///messages/uuid"}
     ]
 
 
 The above structure shows the Operations Array, which consists of an array of operations to be executed in sequence, each operation modifying the specified resource.
 
-### Philosophy
-
-Keep it Simple.  There are many enhancements that could be made to this, but we can add them when they become prioritized.  Example:  we could support
-
-    {operation: "add", property: "subproperty.subproperty", value: ["user1", "user2", "user3]}
-
-But instead we will require three separate add operations:
-
-    [
-        {operation: "add", property: "subproperty.subproperty", value: "user1"},
-        {operation: "add", property: "subproperty.subproperty", value: "user2"},
-        {operation: "add", property: "subproperty.subproperty", value: "user3"}
-    ]
-
-### REST API
+### Using the Operations Array via REST API
 
 A REST call will identify the resource to be modified via the URL of the request.  The call will provide
 
@@ -59,23 +50,15 @@ PATCH /conversations/{conversation_id}
 Content-type: "application/vnd.layer-patch+json"
 
 [
-    {operation: "add", property: "participants", value: "user1"},
-    {operation: "add", property: "participants", value: "user2"},
-    {operation: "remove", property: "participants", value: "user3"}
+    {operation: "add",      property: "participants", value: "user1"},
+    {operation: "add",      property: "participants", value: "user2"},
+    {operation: "remove",   property: "participants", value: "user3"}
 ]
 ```
 
-Note that it is no longer necessary to have endpoints targetted at a property, enabling:
+### Using the Operations Array via Websocket API
 
-* PATCH /conversations/{conversation_id} with `{property: "participants"}`
-
-Rather than
-
-* PATCH /conversations/{conversation_id}/participants
-
-### Websocket API
-
-A Websocket call will identify the resource to be modified using the `object` structure as defined in the [Websocket spec](websocket-notifications.md).  It will provide a data object containing the Operations Array.  Its operation will be simply "patch" rather than "application/vnd.layer-patch+json".
+A Websocket event will identify the resource to be modified and will provide an Operations Array to tell the client or server how to update that resource.  Here is one example:
 
     {
         "type": "change",
@@ -86,7 +69,8 @@ A Websocket call will identify the resource to be modified using the `object` st
             "url": "https://api.layer.com/conversations/f3cc7b32-3c92-11e4-baad-164230d1df67"
         },
         "data": [
-            {operation: "delete", property: "metadata.todo"}
+            {operation: "delete", property: "metadata.todo"},
+            {operation: "set",    property: "unread_message_count", 5}
         ]
     }
 
@@ -96,8 +80,8 @@ The operations array can contain zero or more elements. Each element represents 
 
 Each Operation consists of the following keys:
 
-* operation: Type of mutation to perform
-* property: Path to the property to modify
+* operation: Type of mutation to perform (required)
+* property: Path to the property to modify (required)
 * value: Value to be added or removed from the property
 * id: Id of the object to be added or removed from the property
 * index: Index in an array of a value to insert or remove
@@ -106,26 +90,26 @@ Each Operation consists of the following keys:
 
 The following values are supported for `operation`:
 
-* add: Adds the specified value to an array.
-* remove: Removes the specified value from an array.
-* set: Sets the specified key in an object/dictionary.
-* delete: Removes the specified key from an object/dictionary.
+* add: Adds the specified value to an array/set.
+* remove: Removes the specified value from an array/set.
+* set: Sets the specified key in an object.
+* delete: Removes the specified key from an object.
 
 #### The Property Key
 
-A property identifies either a property of the base object (Message, Conversation, etc...) or a `.` separated path to a key within one of its properties.
+A property identifies either a property of the Base Object or a `.` separated path to a key within one of its properties.
 
-* `unread_message_count`: Identifies the unread_message_count property of a Conversation
-* `recipient_status.fred`: Identifies the recipient_status property of a Message, and the `fred` key within the recipient_status value.
+* `unread_message_count`: Identifies the unread_message_count property of a Base Object.
+* `recipient_status.fred`: Identifies the recipient_status property of a Base Object, and the `fred` key within the recipient_status value.
 
 Any key within an object identified by the `property` that does not exist will be created.  Note however:
 
-* New properties will never be created on a base object (Message, Conversation), only within object/dictionary properties of the base object.
+* New properties will never be created on a Base Object, only within object/dictionary properties of the Base Object.
 * This rule *does* apply to the `delete` operation; refering to "metadata.a.b" means that `metadata: {a: {b: null}}` must be created so that b can be deleted; thus, `{a: {}}` may be created in order to delete "metadata.a.b". (note: the creation of the structure is the goal, implementation details are not intended to be mandated here).
 
 #### The Value and Id Key
 
-All operations except delete take either a `value` or a `id`.  `Value` or `id` specify what value is to be placed into the property.  `value` passes the value directly while `id` identifies an object to be passed in.
+All operations except delete take either a `value` or a `id`.  `value` or `id` specify what value is to be written or removed from the property.  `value` passes the value directly while `id` identifies an object to be passed in.
 
 #### The Index Key
 
@@ -136,7 +120,7 @@ The `index` property is used to modify the `add` and `remove` operations.
 * `remove` by `index` removes the value at the specified array index.
 * `remove` by `index` with a `value` or `id` as part of the operation will only remove the specified index from the array if the value at that index matches the value from the operation.
 
-NOTE: Support for `index` and array manipulation is not expected to be implemented in the first version of our server.
+> Support for `index` and array manipulation is not yet implemented in any frameworks
 
 ## Details
 
@@ -206,7 +190,7 @@ Final State:
 
 #### Setting using `id`
 
-Instead of providing a value, one could provide a `id` that identifies a Layer Object.
+Instead of providing a value, one could provide an `id` that identifies a resource.
 
 Initial State:
 
@@ -232,13 +216,15 @@ Final State:
         parts: [...]
     }
 
+Note that this version of the specification does not describe how to lookup objects, nor how to match an object by Id.  This is presumed to be custom to each object type.
+
 ### The `delete` operation
 
 The delete operation will remove the specified key from the object.  Notes:
 
-* It is *invalid* to delete a property of a base object (Message.recipient_status, Conversation.unread_message_count, etc...).  Instead use the `set` operation with a `value` of *null*.
-* It is *valid* to delete a key within an object/dictionary stored in a base object's property.  Metadata and recipient_status are examples or properties that store objects that can have keys deleted.
-* Delete has the same meaning as removing a key from a Hash: removing the key from the object along with any/all data it references.
+* It is *invalid* to delete a property of a Base Object (e.g. Message.recipient_status, Conversation.unread_message_count, etc...).  Instead use the `set` operation with a `value` of *null*.
+* It is *valid* to delete a key within an object/dictionary stored in a Base Object's property. (e.g Conversation.metadata.fred).
+* Delete has the same meaning as removing a key from a Hash: it removes the key from the object along with any/all data it references.
 
 Initial State:
 
@@ -267,11 +253,11 @@ Final State:
 
 `add` is used solely for operating upon array properties. `add` takes a value and adds it to the target property array.
 
-#### Using `add` in Set Operations
+#### Using `add` for Operations on Sets
 
 An `add` Operation that omits the `index` property will use Set logic when adding values.
 
-**Set operation means that the specified value will be added to the array.**
+**Add to Set means that the specified value will be added to the array.**
 
 Initial State:
 
@@ -294,7 +280,7 @@ Final State:
 
     participants: ["mary", "joe", "fred", "sue"]
 
-**Set operation means that if the value is already there, its a no-op.**
+**Add to Set means that if the value is already there, its a no-op.**
 
 Initial State:
 
@@ -317,7 +303,7 @@ Final State:
 
     participants: ["mary", "joe", "sue"]
 
-**Until we have a standard means of comparing two objects, adding objects to sets will not work.**
+**Until the spec evolves to define how to compare two objects, adding objects to sets will not work.**
 
     [{
         operation: "add",
@@ -325,9 +311,9 @@ Final State:
         value: {my: "object"}
     }]
 
-Will throw an error.  See the Future Work section for thoughts on handling this.
+Will throw an error.  
 
-**Until we have a standard means of comparing two sets or arrays, adding Arrays or Sets will not work.**
+**Until the spec evolves to define how to compare two Sets or Arrays, adding Arrays or Sets will not work.**
 
     [{
         operation: "add",
@@ -335,9 +321,9 @@ Will throw an error.  See the Future Work section for thoughts on handling this.
         value: ["fred", "sue"]
     }]
 
-Will throw an error.  See the future work section for thoughts on handling this.
+Will throw an error.  
 
-**An exception to removing objects: adding and removing values by id is supported as it provides a clear way to compare objects.**
+**An exception to adding objects: adding values by id is supported as it provides a clear way to compare objects.**
 
 Initial State:
 
@@ -435,15 +421,17 @@ Final State:
 
 Obviously for participants, we'd want to treat it as a Set rather than as an Array.
 
+> At this time, only set, and not array behaviors are implemented in the code in this repository.
+
 ### The `remove` operation
 
 `remove` is used solely for operating upon array properties.  `remove` takes a value and removes it from the target property array.
 
-#### Using `remove` in Set Operations
+#### Using `remove` for Operations on Sets
 
 A `remove` Operation that omits the index property will use Set logic when removing values.
 
-**Set operation means that the specified value will be removed from the array.**
+**Remove from Sets means that the specified value will be removed from the array.**
 
 Initial State:
 
@@ -466,7 +454,7 @@ Final State:
 
     participants: ["mary", "joe"]
 
-**Set operation means that if the value is not found, its a no-op, not an error.**
+**Remove from Set means that if the value is not found, its a no-op, not an error.**
 
 Initial State:
 
@@ -491,7 +479,7 @@ Final State:
 
 The absense of a "Zod" does not affect successful completion of all operations in the Operations Array.
 
-**Until we have a standard means of comparing two objects, removing objects from sets will not work.**
+**Until the spec evolves to define how to compare two objects, removing objects from sets will not work.**
 
     [{
         operation: "remove",
@@ -501,7 +489,7 @@ The absense of a "Zod" does not affect successful completion of all operations i
 
 Will throw an error.
 
-**Until we have a standard means of comparing two Sets or Arrays, removing Arrays or Sets will not work.**
+**Until the spec evolves to define how to compare two Sets or Arrays, removing Arrays or Sets will not work.**
 
     [{
         operation: "remove",
@@ -602,6 +590,9 @@ Note that operations are executed in the order specified. Thus the following wil
         index: 1
     }]
 
+
+> At this time, only set, and not array behaviors are implemented in the code in this repository.
+
 ##### Using `value` with `index`
 
 Providing an `index` and a `value` will remove the value at the specified index IF it matches the specified value.
@@ -628,7 +619,7 @@ Final Result:
 
     participants: ["joe", "Zod"]
 
-Note that "joe" at index 1 was not removed because it did not match the value "Zod".
+Note that "joe" at index 1 was not removed because it did not match the value "Zod".  The fact that "joe" moved after the second operation, does not get taken into account.
 
 Also note that operations are executed in the order specified. Thus the following operation would be hazardous:
 
@@ -649,7 +640,7 @@ Depending on whether the first value is "Zod", the operation will either remove 
 
 ### Managing Active Participants
 
-The scenario below assumes that we start with the following metadata for managing which participants are actively posting to a conversation.
+The scenario below assumes that we start with the following metadata for managing which participants are actively posting to a Conversation.
 
     {
         active_participants: ["fred", "sue"],
@@ -720,3 +711,4 @@ The following have been left out of the spec but may be added in the future for 
 1. Actual implementation of array operations is not expected for early implementations of this spec.
 2. Handling Objects, Arrays and Sets when adding or removing values from Sets: In order to do this, we need to have a platform-agnostic way of signaling the equivalency of two objects, arrays or sets.
 3. More concise syntax.  It should be possible to add 100 values to an array without 100 operations.
+4. More detail should be provided on how add and remove by "id" actually match by "id".
