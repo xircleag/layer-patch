@@ -712,3 +712,7 @@ The following have been left out of the spec but may be added in the future for 
 2. Handling Objects, Arrays and Sets when adding or removing values from Sets: In order to do this, we need to have a platform-agnostic way of signaling the equivalency of two objects, arrays or sets.
 3. More concise syntax.  It should be possible to add 100 values to an array without 100 operations.
 4. More detail should be provided on how add and remove by "id" actually match by "id".
+
+## License
+
+Layer-Patch is available under the Apache 2 License. See the LICENSE file for more info.
