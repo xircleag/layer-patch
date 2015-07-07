@@ -22,7 +22,7 @@ parser.parse({
         {"operation": "set", "property": "c", "value": 5}
     ]
 });
-``
+```
 
 The above example transforms `testObj` to
 ```json
