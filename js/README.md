@@ -5,8 +5,8 @@ The goal of this utility is to take as input
 1. Layer Patch Operations Arrays
 2. An object to modify
 
-## Basic Example
 
+## Basic Example
 
 ```
 var parser = new layer.js.LayerPatchParser({});
@@ -381,6 +381,7 @@ var abortCallbacks = {
         }
     }
 };
+
 
 var parser = new layer.js.LayerPatchParser({
     abortCallbacks: abortCallbacks

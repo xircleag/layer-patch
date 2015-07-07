@@ -105,7 +105,30 @@ A property identifies either a property of the Base Object or a `.` separated pa
 Any key within an object identified by the `property` that does not exist will be created.  Note however:
 
 * New properties will never be created on a Base Object, only within object/dictionary properties of the Base Object.
-* This rule *does* apply to the `delete` operation; refering to "metadata.a.b" means that `metadata: {a: {b: null}}` must be created so that b can be deleted; thus, `{a: {}}` may be created in order to delete "metadata.a.b". (note: the creation of the structure is the goal, implementation details are not intended to be mandated here).
+* This rule *does* apply to the `delete` operation; refering to "metadata.a.b.c" means that `metadata: {a: {b: {c: null}}` must be created so that b can be deleted; thus, `{a: {b: {}}}` may be created in order to delete "metadata.a.b.c". (note: the creation of the structure is the goal, implementation details are not intended to be mandated here).
+
+##### Escaping Periods
+
+There is a special case where a property name has a "." in the name:
+```
+{
+    recipient_status: {
+        "fred.flinstone": "read"
+    }
+}
+```
+The path "recipient_status.fred.flinstone" will actually assume the following structure:
+```
+{
+    recipient_status: {
+        "fred": {
+            "flinstone": "read"
+        }
+    }
+}
+```
+
+To process a "." inside of a property name use "..": "recipient_status.fred..flinstone" would be the correct property name for accessing the recipient_status of "fred.flinstone".
 
 #### The Value and Id Key
 
