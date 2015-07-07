@@ -35,9 +35,13 @@ The above example transforms `testObj` to
 
 ## Layer Websocket Example
 
-An example of using this library for receiving operations from the Layer Platform's Websocket API:
+This example shows using this library for receiving operations from the Layer Platform's Websocket API.
+
+It depends upon the getObjectCallback and changeCallbacks documented below.
 
 ```
+
+// Setup an object cache into which we will write new objects
 var objectCache = {};
 
 // This example does not define what an EventManager is, but assumes it has a trigger method.
@@ -64,6 +68,7 @@ var parser = new LayerParser({
     }
 });
 
+// Assumes the websocket is already initialized and just needs an onMessage event handler
 websocket.onMessage = function(evt) {
     var msg = JSON.parse(evt.data);
     try {
