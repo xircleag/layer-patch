@@ -74,7 +74,7 @@ function getPropertyDef(property, options, changes, operation) {
     trackChanges.apply(this, [{
         baseName: parts[0],
         fullPath: property,
-        updateObject: options.object,
+        object: options.object,
         options: options,
         changes: changes,
         operation: operation
