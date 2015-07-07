@@ -19,7 +19,6 @@ var opHandlers = {
 };
 
 function Parser(options) {
-    this.updateObject = options.updateObject;
     this.camelCase = options.camelCase;
     this.propertyNameMap = options.propertyNameMap;
     this.changeCallbacks = options.changeCallbacks;
@@ -42,24 +41,24 @@ Parser.prototype.parse = function(options) {
             op, options, changes);
     }, this);
 
-    reportChanges.apply(this, [changes, options.updateObject, options.objectType]);
+    reportChanges.apply(this, [changes, options.object, options.type]);
 };
 
 function reportChanges(changes, updateObject, objectType) {
     if (this.changeCallbacks && objectType && this.changeCallbacks[objectType]) {
         Object.keys(changes).forEach(function(key) {
-            if (this.changeCallbacks[objectType][key]) {
-                this.changeCallbacks[objectType][key](updateObject, updateObject[key], changes[key].before, changes[key].paths);
-            }
             if (this.changeCallbacks[objectType].all) {
                 this.changeCallbacks[objectType].all(updateObject, updateObject[key], changes[key].before, changes[key].paths);
+            }
+            else if (this.changeCallbacks[objectType][key]) {
+                this.changeCallbacks[objectType][key](updateObject, updateObject[key], changes[key].before, changes[key].paths);
             }
         }, this);
     }
 }
 
 function getPropertyDef(property, options, changes, operation) {
-    var obj = options.updateObject;
+    var obj = options.object;
     var parts = property.split(/\./);
     if (this.camelCase) parts = parts.map(function(p) {
         return p.replace(/[-_]./g, function(str) {
@@ -68,14 +67,14 @@ function getPropertyDef(property, options, changes, operation) {
     });
 
     if (this.propertyNameMap) {
-        var typeDef = this.propertyNameMap[options.objectType];
+        var typeDef = this.propertyNameMap[options.type];
         parts[0] = (typeDef && typeDef[parts[0]]) || parts[0];
     }
 
     trackChanges.apply(this, [{
         baseName: parts[0],
         fullPath: property,
-        updateObject: options.updateObject,
+        updateObject: options.object,
         options: options,
         changes: changes,
         operation: operation
@@ -97,7 +96,7 @@ function getPropertyDef(property, options, changes, operation) {
         lastName: parts[parts.length-1],
         baseName: parts[0],
         fullPath: property,
-        abortHandler: this.abortCallbacks && this.abortCallbacks[options.objectType] && (this.abortCallbacks[options.objectType][parts[0]] || this.abortCallbacks[options.objectType].all)
+        abortHandler: this.abortCallbacks && this.abortCallbacks[options.type] && (this.abortCallbacks[options.type].all || this.abortCallbacks[options.type][parts[0]])
     };
 }
 
@@ -112,7 +111,7 @@ function getValue(op, options) {
 
 function trackChanges(options) {
     if (!options.changes[options.baseName]) {
-        var initialValue = options.updateObject[options.baseName];
+        var initialValue = options.object[options.baseName];
         if ("id" in options.operation && initialValue) {
             initialValue = initialValue.id;
         }
