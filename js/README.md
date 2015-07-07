@@ -12,8 +12,8 @@ The goal of this utility is to take as input
 var parser = new layer.js.LayerPatchParser({});
 
 var testObj = {
-    a: "Hello",
-    b: "There"
+    "a": "Hello",
+    "b": "There"
 };
 parser.parse({
     object: testObj,
@@ -27,9 +27,9 @@ parser.parse({
 The above example transforms `testObj` to
 ```json
 {
-    a: "Goodbye",
-    b: "There",
-    c: 5
+    "a": "Goodbye",
+    "b": "There",
+    "c": 5
 }
 ```
 
@@ -122,6 +122,8 @@ parser.parse({
 
 This `type` value is used as an index into many of the configuration properties shown below.
 
+Note that subproperty names are NOT supported in any of these configurations.  For example, if you have a property called "metadata" you can use any of these configuration parameters to affect "metadata", but if an operation were to set "metadata.age", configurations on "metadata" would continue to apply, but you can not add configurations for the "age" subproperty.
+
 ### getObjectCallback
 
 The getObjectCallback allows the parser to handle operations such as
@@ -133,16 +135,16 @@ As the operation is setting by id rather than by value, the parser needs a way t
 ```
 var objectCache = {
     "fred": {
-        firstName: "fred",
-        lastName: "flinstone",
-        status: "stoneAged"
+        "firstName": "fred",
+        "lastName": "flinstone",
+        "status": "stoneAged"
     }
 };
 
 /**
  * @method
- * @param  {[type]} id [description]
- * @return {[type]}    [description]
+ * @param  {string} id    ID of the object to look for
+ * @return {object}       Object that matches the id (or null)
  */
 var getObjectCallback = function(id) {
     return objectCache[id];
@@ -153,9 +155,9 @@ var parser = new layer.js.LayerPatchParser({
 });
 
 var testObj = {
-    a: "Hello",
-    b: "There",
-    friend: null
+    "a": "Hello",
+    "b": "There",
+    "friend": null
 };
 parser.parse({
     object: testObj,
@@ -166,12 +168,12 @@ parser.parse({
 The above operation will result in a final state for testObj:
 ```json
 {
-    a: "Hello",
-    b: "There",
-    friend: {
-        firstName: "fred",
-        lastName: "flinstone",
-        status: "stoneAged"
+    "a": "Hello",
+    "b": "There",
+    "friend": {
+        "firstName": "fred",
+        "lastName": "flinstone",
+        "status": "stoneAged"
     }
 }
 ```
@@ -193,6 +195,7 @@ do not contain objects.
 function doesObjectMatchIdCallback(id, obj) {
     return obj.id == id;
 }
+```
 
 ### camelCase
 
@@ -206,8 +209,8 @@ var parser = new layer.js.LayerPatchParser({
 });
 
 var testObj = {
-    isAFriend: true,
-    myEnemy: "fred"
+    "isAFriend": true,
+    "myEnemy": "fred"
 };
 parser.parse({
     object: testObj,
@@ -221,8 +224,8 @@ parser.parse({
 The above operation will result in a final state for testObj:
 ```json
 {
-    isAFriend: false,
-    myEnemy: "wilma"
+    "isAFriend": false,
+    "myEnemy": "wilma"
 }
 ```
 
@@ -236,26 +239,26 @@ This is similar to the `camelCase` property but provides fine grained control.
 The map is organized by object type.
 ```
 var propertyNameMap = {
-    Person: {
-        age: "year_count"
+    "Person": {
+        "age": "year_count"
     },
-    Dog: {
-        breed: "dog_type"
+    "Dog": {
+        "breed": "dog_type"
     }
 };
 
 var parser = new layer.js.LayerPatchParser({
-    propertyNameMap: propertyNameMap
+    "propertyNameMap": propertyNameMap
 });
 
 var testObj = {
-    year_count: 50,
-    name: "fred"
+    "year_count": 50,
+    "name": "fred"
 };
 parser.parse({
-    object: testObj,
-    type: "Person",
-    operations: [
+    "object": testObj,
+    "type": "Person",
+    "operations": [
         {"operation": "set", "property": "age", "value": 51}
     ]
 });
@@ -264,8 +267,8 @@ parser.parse({
 The above operation will result in a final state for testObj:
 ```json
 {
-    year_count: 51,
-    name: "fred"
+    "year_count": 51,
+    "name": "fred"
 }
 ```
 
@@ -308,18 +311,18 @@ var parser = new layer.js.LayerPatchParser({
 });
 
 var testPerson = {
-    year_count: 50,
-    name: "fred",
-    metadata: {
-        nickname: "Freaky Fred",
-        last_nickname: "Friendly Fred"
+    "year_count": 50,
+    "name": "fred",
+    "metadata": {
+        "nickname": "Freaky Fred",
+        "last_nickname": "Friendly Fred"
     }
 };
 
 var testDog = {
-    breed: "poodle",
-    attitude: "hostile",
-    preferred_food: "zombie"
+    "breed": "poodle",
+    "attitude": "hostile",
+    "preferred_food": "zombie"
 };
 
 parser.parse({
