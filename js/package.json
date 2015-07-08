@@ -1,4 +1,10 @@
 {
+  "name": "layer-patch",
+  "version": "0.1.0",
+  "description": "Implements the Layer Patch Parser for parsing Layer Patch messages",
+  "homepage": "https://github.com/layerhq/layer-patch/tree/master/js",
+  "repository": "https://github.com/layerhq/layer-patch/tree/master/js",
+  "license": "Apache-2.0",
   "devDependencies": {
     "grunt": "^0.4.5",
     "grunt-browserify": "^3.8.0",
