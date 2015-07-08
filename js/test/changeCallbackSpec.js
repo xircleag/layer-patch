@@ -6,7 +6,7 @@ describe("Change Callback Tests", function() {
         parser = new layer.js.LayerPatchParser({
             changeCallbacks: {
                 "typea": {
-                    "a": function(updateObject, newValue, oldValue, paths) {
+                    "a": function(object, newValue, oldValue, paths) {
                         called = true;
                         expect(oldValue).toEqual(5);
                         expect(newValue).toEqual(10);
@@ -18,10 +18,35 @@ describe("Change Callback Tests", function() {
 
 
         parser.parse({
-            updateObject: {a: 5},
-            objectType: "typea",
+            object: {a: 5},
+            type: "typea",
             operations: [
                 {operation: "set", property: "a", value: 10}
+            ]
+        });
+        expect(called).toEqual(true);
+    });
+
+    it("Should list a path only once", function() {
+        var called = false;
+        parser = new layer.js.LayerPatchParser({
+            changeCallbacks: {
+                "typea": {
+                    "a": function(object, newValue, oldValue, paths) {
+                        called = true;
+                        expect(paths).toEqual(["a"]);
+                    }
+                }
+            }
+        });
+
+
+        parser.parse({
+            object: {a: 5},
+            type: "typea",
+            operations: [
+                {operation: "set", property: "a", value: 10},
+                {operation: "set", property: "a", value: 15}
             ]
         });
         expect(called).toEqual(true);
@@ -33,7 +58,7 @@ describe("Change Callback Tests", function() {
         parser = new layer.js.LayerPatchParser({
             changeCallbacks: {
                 "typea": {
-                    "a": function(updateObject, newValue, oldValue, paths) {
+                    "a": function(object, newValue, oldValue, paths) {
                         called = true;
                         expect(oldValue).toEqual({hey: "ho"});
                         expect(newValue).toEqual({
@@ -48,10 +73,35 @@ describe("Change Callback Tests", function() {
 
 
         parser.parse({
-            updateObject: {a: {hey: "ho"}},
-            objectType: "typea",
+            object: {a: {hey: "ho"}},
+            type: "typea",
             operations: [
                 {operation: "set", property: "a.b.c", value: 10}
+            ]
+        });
+        expect(called).toEqual(true);
+    });
+
+    it("Should list a subproperty path only once", function() {
+        var called = false;
+        parser = new layer.js.LayerPatchParser({
+            changeCallbacks: {
+                "typea": {
+                    "a": function(object, newValue, oldValue, paths) {
+                        called = true;
+                        expect(paths).toEqual(["a.b.c"]);
+                    }
+                }
+            }
+        });
+
+
+        parser.parse({
+            object: {a: {hey: "ho"}},
+            type: "typea",
+            operations: [
+                {operation: "set", property: "a.b.c", value: 10},
+                {operation: "set", property: "a.b.c", value: 15}
             ]
         });
         expect(called).toEqual(true);
@@ -62,7 +112,7 @@ describe("Change Callback Tests", function() {
         parser = new layer.js.LayerPatchParser({
             changeCallbacks: {
                 "typea": {
-                    "all": function(updateObject, newValue, oldValue, paths) {
+                    "all": function(object, newValue, oldValue, paths) {
                         called = true;
                         expect(oldValue).toEqual({hey: "ho"});
                         expect(newValue).toEqual({
@@ -77,10 +127,37 @@ describe("Change Callback Tests", function() {
 
 
         parser.parse({
-            updateObject: {a: {hey: "ho"}},
-            objectType: "typea",
+            object: {a: {hey: "ho"}},
+            type: "typea",
             operations: [
                 {operation: "set", property: "a.b.c", value: 10}
+            ]
+        });
+        expect(called).toEqual(true);
+    });
+
+
+    it("Should ignore named handlers if there is an all handler", function() {
+        var called = false;
+        parser = new layer.js.LayerPatchParser({
+            changeCallbacks: {
+                "typea": {
+                    "fred": function(object, newValue, oldValue, paths) {
+                        expect("This should not have happened").toEqual("Doh!");
+                    },
+                    "all": function(object, newValue, oldValue, paths) {
+                        called = true;
+                    }
+                }
+            }
+        });
+
+        parser.parse({
+            object: {a: {hey: "ho"}},
+            type: "typea",
+            operations: [
+                {operation: "set", property: "fred.b.c", value: 10},
+                {operation: "set", property: "fred", value: 10}
             ]
         });
         expect(called).toEqual(true);
@@ -93,7 +170,7 @@ describe("Change Callback Tests", function() {
         parser = new layer.js.LayerPatchParser({
             changeCallbacks: {
                 "typea": {
-                    "a": function(updateObject, newValue, oldValue, paths) {
+                    "a": function(object, newValue, oldValue, paths) {
                         called = true;
                         expect(count).toEqual(0);
                         count++;
@@ -104,8 +181,8 @@ describe("Change Callback Tests", function() {
 
 
         parser.parse({
-            updateObject: {a: 5},
-            objectType: "typea",
+            object: {a: 5},
+            type: "typea",
             operations: [
                 {operation: "set", property: "a", value: 10},
                 {operation: "set", property: "a", value: 15}
@@ -120,7 +197,7 @@ describe("Change Callback Tests", function() {
         parser = new layer.js.LayerPatchParser({
             changeCallbacks: {
                 "typea": {
-                    "a": function(updateObject, newValue, oldValue, paths) {
+                    "a": function(object, newValue, oldValue, paths) {
                         called = true;
                         expect(count).toEqual(0);
                         count++;
@@ -139,8 +216,8 @@ describe("Change Callback Tests", function() {
 
 
         parser.parse({
-            updateObject: {a: {hey: "ho"}},
-            objectType: "typea",
+            object: {a: {hey: "ho"}},
+            type: "typea",
             operations: [
                 {operation: "set", property: "a.b", value: 10},
                 {operation: "set", property: "a.c", value: 15}

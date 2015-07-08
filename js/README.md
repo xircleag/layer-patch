@@ -5,6 +5,45 @@ The goal of this utility is to take as input
 1. Layer Patch Operations Arrays
 2. An object to modify
 
+## Installing
+
+### Installing from Github
+
+You can directly download the file layer-patch-build.js and load that from a script tag.  If you load it this way, your initialization code will look like:
+
+```
+var parser = new layer.js.LayerPatchParser({});
+```
+
+You can download and build the repo itself via:
+
+```
+> git clone git@github.com:layerhq/layer-patch.git
+> cd layer-patch
+> npm install  (sudo may be required for this)
+```
+
+The end result will be a layer-patch-build.js file which you can load via a script tag, with the same initialization code as above.
+
+#### Testing the Github Repo
+
+You can run the tests on your build by loading `js/test/SpecRunner.html` in your browser.
+
+### Installing from npm
+
+If using npm and browserify, this will be the preferred approach.
+
+```
+> npm install layer-patch --save
+```
+
+Your initialization code will then look like:
+
+```
+var LayerPatchParser = require("layer-patch");
+var parser = new LayerPatchParser({});
+```
+
 
 ## Basic Example
 
@@ -69,7 +108,7 @@ var parser = new LayerParser({
 });
 
 // Assumes the websocket is already initialized and just needs an onMessage event handler
-websocket.onMessage = function(evt) {
+socket.addEventListener("message", function(evt) {
     var msg = JSON.parse(evt.data);
     try {
         switch(msg.type + "." + msg.operation) {
@@ -107,7 +146,7 @@ websocket.onMessage = function(evt) {
     } catch(e) {
         console.error("layer-patch Error: " + e);
     }
-};
+});
 ```
 
 ## Library Properties

@@ -37,7 +37,7 @@ describe("Layer Patch Tests", function() {
     describe("The SET operation", function() {
         it("Should set a property", function() {
             parser.parse({
-                updateObject: testObject,
+                object: testObject,
                 operations:  [
                     {operation: "set", property: "hey", value: "howdy"}
                 ]
@@ -48,7 +48,7 @@ describe("Layer Patch Tests", function() {
 
         it("Should set a subproperty", function() {
             parser.parse({
-                updateObject: testObject,
+                object: testObject,
                 operations:  [
                     {operation: "set", property: "sub_object.subhey", value: "howdy"}
                 ]
@@ -60,7 +60,7 @@ describe("Layer Patch Tests", function() {
         it("Should fail to set a subproperty of a non-object", function() {
             expect(function() {
                 parser.parse({
-                    updateObject: testObject,
+                    object: testObject,
                     operations:  [
                         {operation: "set", property: "hey.ho", value: "howdy"}
                     ]
@@ -70,7 +70,7 @@ describe("Layer Patch Tests", function() {
 
         it("Should set an array/set", function() {
             parser.parse({
-                updateObject: testObject,
+                object: testObject,
                 operations:  [
                     {operation: "set", property: "sub_object.subber-object.set", value: ["z", "z", "z"]}
                 ]
@@ -81,7 +81,7 @@ describe("Layer Patch Tests", function() {
 
         it("Should set null", function() {
             parser.parse({
-                updateObject: testObject,
+                object: testObject,
                 operations:  [
                     {operation: "set", property: "sub_object.subber-object.count", value: null}
                 ]
@@ -92,7 +92,7 @@ describe("Layer Patch Tests", function() {
 
         it("Should create any missing structures", function() {
             parser.parse({
-                updateObject: testObject,
+                object: testObject,
                 operations:  [
                     {operation: "set", property: "sub_object.a.b.c", value: "d"}
                 ]
@@ -103,7 +103,7 @@ describe("Layer Patch Tests", function() {
 
         it("Should set by ID with valid ID", function() {
             parser.parse({
-                updateObject: testObject,
+                object: testObject,
                 operations:  [
                     {operation: "set", property: "hey", id: "b"}
                 ]
@@ -114,7 +114,7 @@ describe("Layer Patch Tests", function() {
 
         it("Should set by ID with invalid ID", function() {
             parser.parse({
-                updateObject: testObject,
+                object: testObject,
                 operations:  [
                     {operation: "set", property: "hey", id: "bbb"}
                 ]
@@ -127,7 +127,7 @@ describe("Layer Patch Tests", function() {
     describe("The DELETE operation", function() {
         it("Should delete a property", function() {
             parser.parse({
-                updateObject: testObject,
+                object: testObject,
                 operations:  [
                     {operation: "delete", property: "hey"}
                 ]
@@ -138,7 +138,7 @@ describe("Layer Patch Tests", function() {
 
         it("Should delete a subproperty", function() {
             parser.parse({
-                updateObject: testObject,
+                object: testObject,
                 operations:  [
                     {operation: "delete", property: "sub_object.subhey"}
                 ]
@@ -150,7 +150,7 @@ describe("Layer Patch Tests", function() {
         it("Should fail to delete a subproperty of a non-object", function() {
             expect(function() {
                 parser.parse({
-                    updateObject: testObject,
+                    object: testObject,
                     operations:  [
                         {operation: "delete", property: "hey.ho", value: "howdy"}
                     ]
@@ -160,7 +160,7 @@ describe("Layer Patch Tests", function() {
 
         it("Should delete an array/set", function() {
             parser.parse({
-                updateObject: testObject,
+                object: testObject,
                 operations:  [
                     {operation: "delete", property: "sub_object.subber-object.set"}
                 ]
@@ -172,7 +172,7 @@ describe("Layer Patch Tests", function() {
 
         it("Should create any missing structures", function() {
             parser.parse({
-                updateObject: testObject,
+                object: testObject,
                 operations:  [
                     {operation: "delete", property: "sub_object.a.b.c"}
                 ]
@@ -186,7 +186,7 @@ describe("Layer Patch Tests", function() {
         it("Should fail if adding to a non-array", function() {
             expect(function() {
                 parser.parse({
-                    updateObject: testObject,
+                    object: testObject,
                     operations:  [
                         {operation: "add", property: "hey", value: "howdy"}
                     ]
@@ -197,7 +197,7 @@ describe("Layer Patch Tests", function() {
         it("Should fail to add an array to a set", function() {
             expect(function() {
                 parser.parse({
-                    updateObject: testObject,
+                    object: testObject,
                     operations:  [
                         {operation: "add", property: "outerSet", value: ["howdy"]}
                     ]
@@ -208,7 +208,7 @@ describe("Layer Patch Tests", function() {
         it("Should fail to add an object to a set", function() {
             expect(function() {
                 parser.parse({
-                    updateObject: testObject,
+                    object: testObject,
                     operations:  [
                         {operation: "add", property: "outerSet", value: {hey: "ho"}}
                     ]
@@ -219,7 +219,7 @@ describe("Layer Patch Tests", function() {
         it("Should fail to add a subproperty of a non-object", function() {
             expect(function() {
                 parser.parse({
-                    updateObject: testObject,
+                    object: testObject,
                     operations:  [
                         {operation: "add", property: "hey.ho", value: "howdy"}
                     ]
@@ -229,7 +229,7 @@ describe("Layer Patch Tests", function() {
 
         it("Should not add a copy of a value", function() {
             parser.parse({
-                updateObject: testObject,
+                object: testObject,
                 operations:  [
                     {operation: "add", property: "outerSet", value: "d"}
                 ]
@@ -239,7 +239,7 @@ describe("Layer Patch Tests", function() {
 
         it("Should add a subproperty", function() {
             parser.parse({
-                updateObject: testObject,
+                object: testObject,
                 operations:  [
                     {operation: "add", property: "outerSet", value: "howdy"}
                 ]
@@ -250,7 +250,7 @@ describe("Layer Patch Tests", function() {
 
         it("Should set a subproperty", function() {
             parser.parse({
-                updateObject: testObject,
+                object: testObject,
                 operations:  [
                     {operation: "add", property: "sub_object.subber-object.set", value: "howdy"}
                 ]
@@ -261,7 +261,7 @@ describe("Layer Patch Tests", function() {
 
         it("Should create any missing structures", function() {
             parser.parse({
-                updateObject: testObject,
+                object: testObject,
                 operations:  [
                     {operation: "add", property: "sub_object.a.b.c", value: "d"}
                 ]
@@ -272,7 +272,7 @@ describe("Layer Patch Tests", function() {
 
         it("Should add by ID with valid ID", function() {
             parser.parse({
-                updateObject: testObject,
+                object: testObject,
                 operations:  [
                     {operation: "add", property: "outerSet", id: "b"}
                 ]
@@ -283,7 +283,7 @@ describe("Layer Patch Tests", function() {
 
         it("Should add by ID with valid ID only once", function() {
             parser.parse({
-                updateObject: testObject,
+                object: testObject,
                 operations:  [
                     {operation: "add", property: "outerSet", id: "b"},
                     {operation: "add", property: "outerSet", id: "b"}
@@ -298,7 +298,7 @@ describe("Layer Patch Tests", function() {
         it("Should fail if removing from a non-array", function() {
             expect(function() {
                 parser.parse({
-                    updateObject: testObject,
+                    object: testObject,
                     operations:  [
                         {operation: "remove", property: "hey", value: "howdy"}
                     ]
@@ -309,7 +309,7 @@ describe("Layer Patch Tests", function() {
         it("Should fail to remove an array from a set", function() {
             expect(function() {
                 parser.parse({
-                    updateObject: testObject,
+                    object: testObject,
                     operations:  [
                         {operation: "remove", property: "outerSet", value: ["howdy"]}
                     ]
@@ -320,7 +320,7 @@ describe("Layer Patch Tests", function() {
         it("Should fail to remove an object from a set", function() {
             expect(function() {
                 parser.parse({
-                    updateObject: testObject,
+                    object: testObject,
                     operations:  [
                         {operation: "remove", property: "outerSet", value: {hey: "ho"}}
                     ]
@@ -331,7 +331,7 @@ describe("Layer Patch Tests", function() {
         it("Should fail to remove a subproperty of a non-object", function() {
             expect(function() {
                 parser.parse({
-                    updateObject: testObject,
+                    object: testObject,
                     operations:  [
                         {operation: "remove", property: "hey.ho", value: "howdy"}
                     ]
@@ -341,7 +341,7 @@ describe("Layer Patch Tests", function() {
 
         it("Should remove a subproperty", function() {
             parser.parse({
-                updateObject: testObject,
+                object: testObject,
                 operations:  [
                     {operation: "remove", property: "outerSet", value: "d"}
                 ]
@@ -352,7 +352,7 @@ describe("Layer Patch Tests", function() {
 
         it("Should not remove if not present", function() {
             parser.parse({
-                updateObject: testObject,
+                object: testObject,
                 operations:  [
                     {operation: "remove", property: "outerSet", value: "e"}
                 ]
@@ -362,7 +362,7 @@ describe("Layer Patch Tests", function() {
 
         it("Should remove from a subproperty", function() {
             parser.parse({
-                updateObject: testObject,
+                object: testObject,
                 operations:  [
                     {operation: "remove", property: "sub_object.subber-object.set", value: "a"}
                 ]
@@ -373,7 +373,7 @@ describe("Layer Patch Tests", function() {
 
         it("Should create any missing structures", function() {
             parser.parse({
-                updateObject: testObject,
+                object: testObject,
                 operations:  [
                     {operation: "remove", property: "sub_object.a.b.c", value: "d"}
                 ]
@@ -386,7 +386,7 @@ describe("Layer Patch Tests", function() {
             testObject.outerSet.push(objectCache.b);
 
             parser.parse({
-                updateObject: testObject,
+                object: testObject,
                 operations:  [
                     {operation: "remove", property: "outerSet", id: "b"}
                 ]
@@ -398,7 +398,7 @@ describe("Layer Patch Tests", function() {
             testObject.outerSet.push(objectCache.b);
 
             parser.parse({
-                updateObject: testObject,
+                object: testObject,
                 operations:  [
                     {operation: "remove", property: "outerSet", id: "b"},
                     {operation: "remove", property: "outerSet", id: "b"}
@@ -409,7 +409,7 @@ describe("Layer Patch Tests", function() {
 
         it("Should remove by ID with not-found id resulting in noop", function() {
             parser.parse({
-                updateObject: testObject,
+                object: testObject,
                 operations:  [
                     {operation: "remove", property: "outerSet", id: "bbbb"}
                 ]

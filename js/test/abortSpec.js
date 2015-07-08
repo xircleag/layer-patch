@@ -18,8 +18,8 @@ describe("Abort Callback Tests", function() {
 
 
         parser.parse({
-            updateObject: {a: 5},
-            objectType: "typea",
+            object: {a: 5},
+            type: "typea",
             operations: [
                 {operation: "set", property: "a", value: 10}
             ]
@@ -45,8 +45,8 @@ describe("Abort Callback Tests", function() {
 
 
         parser.parse({
-            updateObject: {a: {hey: "ho"}},
-            objectType: "typea",
+            object: {a: {hey: "ho"}},
+            type: "typea",
             operations: [
                 {operation: "set", property: "a.b.c", value: 10}
             ]
@@ -71,9 +71,39 @@ describe("Abort Callback Tests", function() {
 
 
         parser.parse({
-            updateObject: {a: {hey: "ho"}},
-            objectType: "typea",
+            object: {a: {hey: "ho"}},
+            type: "typea",
             operations: [
+                {operation: "set", property: "a.b.c", value: 10}
+            ]
+        });
+        expect(called).toEqual(true);
+    });
+
+    it("Should ignore other handlers if there is an all handler", function() {
+        var called = false;
+        parser = new layer.js.LayerPatchParser({
+            abortCallbacks: {
+                "typea": {
+                    "all": function(property, operation, value) {
+                        called = true;
+                    },
+                    a: function(property, operation, value) {
+                        expect("This not to have been called").toEqual("Doh!");
+                    },
+                    b: function(property, operation, value) {
+                        expect("This not to have been called").toEqual("Doh!");
+                    }
+                }
+            }
+        });
+
+
+        parser.parse({
+            object: {a: {hey: "ho"}},
+            type: "typea",
+            operations: [
+                {operation: "set", property: "b", value: 10},
                 {operation: "set", property: "a.b.c", value: 10}
             ]
         });
@@ -92,15 +122,15 @@ describe("Abort Callback Tests", function() {
             }
         });
 
-        var updateObject = {a:5};
+        var object = {a:5};
         parser.parse({
-            updateObject: updateObject,
-            objectType: "typea",
+            object: object,
+            type: "typea",
             operations: [
                 {operation: "set", property: "a", value: 10}
             ]
         });
-        expect(updateObject).toEqual({
+        expect(object).toEqual({
             a: 10
         });
     });
@@ -116,15 +146,15 @@ describe("Abort Callback Tests", function() {
             }
         });
 
-        var updateObject = {a:5};
+        var object = {a:5};
         parser.parse({
-            updateObject: updateObject,
-            objectType: "typea",
+            object: object,
+            type: "typea",
             operations: [
                 {operation: "set", property: "a", value: 10}
             ]
         });
-        expect(updateObject).toEqual({
+        expect(object).toEqual({
             a: 5
         });
     });
@@ -140,15 +170,15 @@ describe("Abort Callback Tests", function() {
             }
         });
 
-        var updateObject = {a:5};
+        var object = {a:5};
         parser.parse({
-            updateObject: updateObject,
-            objectType: "typea",
+            object: object,
+            type: "typea",
             operations: [
                 {operation: "set", property: "a", value: 10}
             ]
         });
-        expect(updateObject).toEqual({
+        expect(object).toEqual({
             a: 5
         });
     });

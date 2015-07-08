@@ -60,10 +60,8 @@ function reportChanges(changes, updateObject, objectType) {
 function getPropertyDef(property, options, changes, operation) {
     var obj = options.object;
     var parts = property.split(/\./);
-    if (this.camelCase) parts = parts.map(function(p) {
-        return p.replace(/[-_]./g, function(str) {
-            return str[1].toUpperCase();
-        });
+    if (this.camelCase) parts[0] = parts[0].replace(/[-_]./g, function(str) {
+        return str[1].toUpperCase();
     });
 
     if (this.propertyNameMap) {
@@ -118,7 +116,10 @@ function trackChanges(options) {
         var change = options.changes[options.baseName] = {paths: []};
         change.before = (initialValue && typeof initialValue == "object") ? JSON.parse(JSON.stringify(initialValue)) : initialValue;
     }
-    options.changes[options.baseName].paths.push(options.fullPath);
+    var paths = options.changes[options.baseName].paths;
+    if (paths.indexOf(options.fullPath) == -1) {
+        paths.push(options.fullPath);
+    }
 }
 
 function setProp(propertyDef, value, op, options, changes) {

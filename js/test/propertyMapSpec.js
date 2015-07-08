@@ -23,8 +23,8 @@ describe("PropertyMap Tests", function() {
         };
 
         parser.parse({
-            updateObject: testObject,
-            objectType: "typea",
+            object: testObject,
+            type: "typea",
             operations: [
                 {operation: "set", property: "a", value: 8},
                 {operation: "set", property: "b", value: "fred"}
@@ -37,15 +37,15 @@ describe("PropertyMap Tests", function() {
         });
     });
 
-    it("Should set witout map if object not present", function() {
+    it("Should set without map if object not present", function() {
         var testObject = {
             aaa: 5,
             BCE: true
         };
 
         parser.parse({
-            updateObject: testObject,
-            objectType: "typeC",
+            object: testObject,
+            type: "typeC",
             operations: [
                 {operation: "set", property: "a", value: 8},
                 {operation: "set", property: "b", value: "fred"}
@@ -71,8 +71,8 @@ describe("PropertyMap Tests", function() {
         };
 
         parser.parse({
-            updateObject: testObject,
-            objectType: "typeb",
+            object: testObject,
+            type: "typeb",
             operations: [
                 {operation: "delete", property: "fred"},
                 {operation: "delete", property: "frodo"}
@@ -86,8 +86,8 @@ describe("PropertyMap Tests", function() {
         var testObject = {hey: "ho"};
 
             parser.parse({
-            updateObject: testObject,
-            objectType: "typea",
+            object: testObject,
+            type: "typea",
             operations: [
                 {operation: "add", property: "a", value: "AA"},
                 {operation: "add", property: "b", value: "BB"},
@@ -108,8 +108,8 @@ describe("PropertyMap Tests", function() {
         };
 
             parser.parse({
-            updateObject: testObject,
-            objectType: "typeb",
+            object: testObject,
+            type: "typeb",
             operations: [
                 {operation: "remove", property: "fred", value: "a"},
                 {operation: "remove", property: "frodo.records", value: "b"},

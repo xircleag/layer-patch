@@ -32,7 +32,7 @@ describe("CamelCase Tests", function() {
 
     it("Should map sub-object to subObject for set operation", function() {
         parser.parse({
-            updateObject: testObject,
+            object: testObject,
             operations: [
                 {operation: "set", property: "sub-object", value: {howdy: "ho"}}
             ]
@@ -43,7 +43,7 @@ describe("CamelCase Tests", function() {
 
     it("Should map sub-object to subObject for delete operation", function() {
         parser.parse({
-            updateObject: testObject,
+            object: testObject,
             operations: [
                 {operation: "delete", property: "sub-object"}
             ]
@@ -55,7 +55,7 @@ describe("CamelCase Tests", function() {
     it("Should map sub-object to subObject for add operation", function() {
         testObject.subObject = [];
         parser.parse({
-            updateObject: testObject,
+            object: testObject,
             operations: [
                 {operation: "add", property: "sub-object", value: "hi"}
             ]
@@ -67,12 +67,23 @@ describe("CamelCase Tests", function() {
     it("Should map sub-object to subObject for remove operation", function() {
         testObject.subObject = ["hi", "ho"];
         parser.parse({
-            updateObject: testObject,
+            object: testObject,
             operations: [
                 {operation: "remove", property: "sub-object", value: "hi"}
             ]
         });
         finalObject.subObject = ["ho"];
+        expect(testObject).toEqual(finalObject);
+    });
+
+    it("Should map sub-object to subObject but NOT subproperties for set operation", function() {
+        parser.parse({
+            object: testObject,
+            operations: [
+                {operation: "set", property: "sub-object.doh-ray", value: "me"}
+            ]
+        });
+        finalObject.subObject["doh-ray"] = "me";
         expect(testObject).toEqual(finalObject);
     });
 
