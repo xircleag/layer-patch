@@ -1,0 +1,5 @@
+{
+  "name": "layer-patch",
+  "version": "0.1.0",
+  "main": "js/layer-patch.js"
+}
