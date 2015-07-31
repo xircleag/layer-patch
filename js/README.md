@@ -480,6 +480,13 @@ var testDog = {
 };
 ```
 
+### returnIds
+
+When setting values by ID, proper behavior when the object associated
+with that ID is not well defined by the Layer Patch specification.
+The default behavior is to set the property to null if the ID is not
+found.  Setting the returnIds property to true will set the property
+to the string ID if the object is not found.
 
 ## Evolution
 

@@ -113,6 +113,14 @@ describe("Layer Patch Tests", function() {
         });
 
         it("Should set by ID with invalid ID", function() {
+	        parser = new layer.js.LayerPatchParser({
+		    returnIds: true,
+		    getObjectCallback: function(id) {
+                	return objectCache[id];
+		    }		    
+		}); 
+
+
             parser.parse({
                 object: testObject,
                 operations:  [
@@ -120,6 +128,17 @@ describe("Layer Patch Tests", function() {
                 ]
             });
             finalObject.hey = "bbb";
+            expect(testObject).toEqual(finalObject);
+        });
+
+        it("Should set by ID to null invalid ID", function() {
+            parser.parse({
+                object: testObject,
+                operations:  [
+                    {operation: "set", property: "hey", id: "bbb"}
+                ]
+            });
+            finalObject.hey = null;
             expect(testObject).toEqual(finalObject);
         });
     });

@@ -27,6 +27,7 @@ function Parser(options) {
     this.doesObjectMatchIdCallback = options.doesObjectMatchIdCallback || function(id, obj) {
         return obj.id == id;
     };
+    this.returnIds = options.returnIds;
     return this;
 };
 module.exports = Parser;
@@ -101,7 +102,10 @@ function getPropertyDef(property, options, changes, operation) {
 function getValue(op, options) {
     if (op.id) {
         if (!this.getObjectCallback) throw new Error("Must provide getObjectCallback in constructor to use ids");
-        return this.getObjectCallback(op.id) || op.id;
+	var result = this.getObjectCallback(op.id);
+	if (result) return result;
+	if (this.returnIds) return op.id;
+	return null;
     } else {
         return op.value;
     }
