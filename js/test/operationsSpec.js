@@ -57,6 +57,19 @@ describe("Layer Patch Tests", function() {
             expect(testObject).toEqual(finalObject);
         });
 
+        it("Should set a subproperty with periods in name", function() {
+            parser.parse({
+                object: testObject,
+                operations:  [
+                    {operation: "set", property: "sub_object.sub\\.hey", value: "howdy"},
+                    {operation: "set", property: "a.b\\.c\\.d.e", value: "there"}
+                ]
+            });
+            finalObject["sub_object"]["sub.hey"] = "howdy";
+            finalObject.a = {"b.c.d": {e: "there"}};
+            expect(testObject).toEqual(finalObject);
+        });
+
         it("Should fail to set a subproperty of a non-object", function() {
             expect(function() {
                 parser.parse({
@@ -117,8 +130,8 @@ describe("Layer Patch Tests", function() {
 		    returnIds: true,
 		    getObjectCallback: function(id) {
                 	return objectCache[id];
-		    }		    
-		}); 
+		    }
+		});
 
 
             parser.parse({
@@ -163,6 +176,18 @@ describe("Layer Patch Tests", function() {
                 ]
             });
             delete finalObject["sub_object"].subhey;
+            expect(testObject).toEqual(finalObject);
+        });
+
+        it("Should delete a subproperty with periods in name", function() {
+            testObject.sub_object["a.b.c"] = {"d": "e"};
+            parser.parse({
+                object: testObject,
+                operations:  [
+                    {operation: "set", property: "sub_object.a\\.b\\.c.d", value: "howdy"}
+                ]
+            });
+            finalObject["sub_object"]["a.b.c"] = {d: "howdy"};
             expect(testObject).toEqual(finalObject);
         });
 
@@ -267,6 +292,18 @@ describe("Layer Patch Tests", function() {
             expect(testObject).toEqual(finalObject);
         });
 
+        it("Should add a subproperty with periods in name", function() {
+            testObject.sub_object["a.b.c"] = {"d": ["a", "b"]};
+            parser.parse({
+                object: testObject,
+                operations:  [
+                    {operation: "add", property: "sub_object.a\\.b\\.c.d", value: "howdy"}
+                ]
+            });
+            finalObject["sub_object"]["a.b.c"] = {d: ["a", "b", "howdy"]};
+            expect(testObject).toEqual(finalObject);
+        });
+
         it("Should set a subproperty", function() {
             parser.parse({
                 object: testObject,
@@ -366,6 +403,18 @@ describe("Layer Patch Tests", function() {
                 ]
             });
             finalObject.outerSet = [];
+            expect(testObject).toEqual(finalObject);
+        });
+
+        it("Should remove a subproperty with periods in name", function() {
+            testObject.sub_object["a.b.c"] = {"d": ["a", "b"]};
+            parser.parse({
+                object: testObject,
+                operations:  [
+                    {operation: "remove", property: "sub_object.a\\.b\\.c.d", value: "a"}
+                ]
+            });
+            finalObject["sub_object"]["a.b.c"] = {d: ["b"]};
             expect(testObject).toEqual(finalObject);
         });
 

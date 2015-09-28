@@ -1,6 +1,6 @@
 {
   "name": "layer-patch",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Implements the Layer Patch Parser for parsing Layer Patch messages",
   "homepage": "https://github.com/layerhq/layer-patch/tree/master/js",
   "repository": "https://github.com/layerhq/layer-patch/tree/master/js",

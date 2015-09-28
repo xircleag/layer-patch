@@ -60,10 +60,21 @@ function reportChanges(changes, updateObject, objectType) {
 
 function getPropertyDef(property, options, changes, operation) {
     var obj = options.object;
+    var temporarySeparator = String.fromCharCode(145);
+    property = property.replace(/\\\./g, temporarySeparator);
+    property = property.replace(/\\(.)/g, "$1");
     var parts = property.split(/\./);
-    if (this.camelCase) parts[0] = parts[0].replace(/[-_]./g, function(str) {
-        return str[1].toUpperCase();
+
+    var r = new RegExp(temporarySeparator, "g")
+    parts = parts.map(function(part) {
+        return part.replace(r, ".");
     });
+
+    if (this.camelCase) {
+        parts[0] = parts[0].replace(/[-_]./g, function(str) {
+            return str[1].toUpperCase();
+        });
+    }
 
     if (this.propertyNameMap) {
         var typeDef = this.propertyNameMap[options.type];

@@ -128,7 +128,7 @@ The path "recipient_status.fred.flinstone" will actually assume the following st
 }
 ```
 
-To process a "." inside of a property name use "..": "recipient_status.fred..flinstone" would be the correct property name for accessing the recipient_status of "fred.flinstone".
+To process a "." inside of a property name use "\.": "recipient_status.fred\.flinstone" would be the correct property name for accessing the recipient_status of "fred.flinstone".
 
 #### The Value and Id Key
 
@@ -334,7 +334,7 @@ Final State:
         value: {my: "object"}
     }]
 
-Will throw an error.  
+Will throw an error.
 
 **Until the spec evolves to define how to compare two Sets or Arrays, adding Arrays or Sets will not work.**
 
@@ -344,7 +344,7 @@ Will throw an error.
         value: ["fred", "sue"]
     }]
 
-Will throw an error.  
+Will throw an error.
 
 **An exception to adding objects: adding values by id is supported as it provides a clear way to compare objects.**
 
