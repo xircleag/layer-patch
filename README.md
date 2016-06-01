@@ -1,5 +1,8 @@
 # The Layer-Patch Format
 
+## Implementations
+
+You can find an implementation of LayerPatch at [Node Layer Patch](https://www.npmjs.com/package/layer-patch).
 
 ## Introduction
 
@@ -471,7 +474,7 @@ Adds "fred" and "sue" to the participants array
 Final State:
 
     data: [{id: "mary12345", name: "Mary"}, {id: "joe6789", name: "joe"}, {id: "fred23456", name: "Fred"}, {id: "sue4568", name: "Sue"}]
-    
+
 #### Using `add` with `id` and `value`
 
 The prior example only works if `fred23456` and `sue4568` are already known to the recipient of the operation.  To insure that the recipient does not need to load these from a remote server if not present, one can include a `value` field as well:
@@ -497,7 +500,7 @@ Adds "fred" and "sue" to the participants array
 
 Final State:
 
-    data: [{id: "mary12345", name: "Mary"}, {id: "joe6789", name: "joe"}, {id: "fred23456", name: "Fred"}, {id: "sue4568", name: "Sue"}]    
+    data: [{id: "mary12345", name: "Mary"}, {id: "joe6789", name: "joe"}, {id: "fred23456", name: "Fred"}, {id: "sue4568", name: "Sue"}]
 
 
 #### Using `add` in Array Operations
