@@ -31,7 +31,9 @@ It is similar in many ways to the JSON-Patch standard. The JSON-Patch standard h
         {operation: "remove",   property: "propA.propB", index: 3},
         {operation: "set",      property: "propA.propB", value: "fred"},
         {operation: "delete",   property: "propA.propB"},
-        {operation: "set",      property: "propA.propB", id: "layer:///messages/uuid"}
+        {operation: "set",      property: "propA.propB", id: "layer:///messages/uuid"},
+        {operation: "add",      property: "propA.propB", id: "layer:///messages/uuid"},
+        {operation: "add",      property: "propA.propB", id: "layer:///messages/uuid", value: {id: "layer:///messages/uuid", name: "fred", age: 555}}
     ]
 
 
@@ -133,6 +135,8 @@ To process a "." inside of a property name use "\.": "recipient_status.fred\.fli
 #### The Value and Id Key
 
 All operations except delete take either a `value` or a `id`.  `value` or `id` specify what value is to be written or removed from the property.  `value` passes the value directly while `id` identifies an object to be passed in.
+
+One can provide BOTH an `id` and a `value`, using the `id` to determine if the object is already cached, as well as for comparing to any existing values; using the `value` in the event that there is no local cache of the described object.
 
 #### The Index Key
 
@@ -240,6 +244,42 @@ Final State:
     }
 
 Note that this version of the specification does not describe how to lookup objects, nor how to match an object by Id.  This is presumed to be custom to each object type.
+
+#### Setting using `id` and `value`
+
+In addition to providing an `id` that identifies a resource, a copy of that resource may also be provided.
+
+Initial State:
+
+    last_message: null
+
+Set the value by `id` and `value`:
+
+    [{
+        operation: "set",
+        property: "last_message",
+        id: "layer:///messages/uuid",
+        value: {
+            id: "layer:///messages/uuid",
+            url: "https://api.domain.com/messages/uuid",
+            ....
+        }
+    }]
+
+In the event that looking up the object fails, one can instantiate the object using the data provided by the patch event:
+
+    conversation.last_message = lookupObject(operation.id);
+    if (conversation.last_message === null) {
+        conversation.last_message = createObject(operation.value);
+    }
+
+Final State:
+
+    last_message: {
+        id: "layer:///messages/uuid",
+        url: "https://api.layer.com/messages/uuid",
+        parts: [...]
+    }
 
 ### The `delete` operation
 
@@ -406,6 +446,59 @@ Final State:
             }
         }
     }
+
+#### Using `add` with `id`
+
+Providing an `id` instead of a `value` within an `add` operation means that you must lookup the resource specified by that `id`, and if and only if that resource isn't already in the set, add it to the set.
+
+Initial State:
+
+    data: [{id: "mary12345", name: "Mary"}, {id: "joe6789", name: "joe"}]
+
+Adds "fred" and "sue" to the participants array
+
+    [{
+        operation: "add",
+        property: "participants",
+        id: "fred23456"
+    },
+    {
+        operation: "add",
+        property: "participants",
+        id: "sue4568"
+    }]
+
+Final State:
+
+    data: [{id: "mary12345", name: "Mary"}, {id: "joe6789", name: "joe"}, {id: "fred23456", name: "Fred"}, {id: "sue4568", name: "Sue"}]
+    
+#### Using `add` with `id` and `value`
+
+The prior example only works if `fred23456` and `sue4568` are already known to the recipient of the operation.  To insure that the recipient does not need to load these from a remote server if not present, one can include a `value` field as well:
+
+Initial State:
+
+    data: [{id: "mary12345", name: "Mary"}, {id: "joe6789", name: "joe"}]
+
+Adds "fred" and "sue" to the participants array
+
+    [{
+        operation: "add",
+        property: "participants",
+        id: "fred23456",
+        value: {id: "fred23456", name: "Fred"}
+    },
+    {
+        operation: "add",
+        property: "participants",
+        id: "sue4568",
+        value: {id: "sue4568", name: "Sue"}
+    }]
+
+Final State:
+
+    data: [{id: "mary12345", name: "Mary"}, {id: "joe6789", name: "joe"}, {id: "fred23456", name: "Fred"}, {id: "sue4568", name: "Sue"}]    
+
 
 #### Using `add` in Array Operations
 
